@@ -23,10 +23,10 @@ type StandupDoc = {
 
 function statusStyle(status: string) {
   if (status === 'blocked')
-    return { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: '#EF4444', label: 'Blocked' };
+    return { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: 'rgba(239,68,68,0.3)', glow: '0 0 12px rgba(239,68,68,0.2)', label: 'Blocked' };
   if (status === 'check_in')
-    return { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B', border: '#F59E0B', label: 'Check in' };
-  return { bg: 'rgba(16, 185, 129, 0.15)', text: '#10B981', border: '#22d3ee', label: 'On track' };
+    return { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B', border: 'rgba(245,158,11,0.3)', glow: 'none', label: 'Check in' };
+  return { bg: 'rgba(16, 185, 129, 0.15)', text: '#10B981', border: 'rgba(16,185,129,0.3)', glow: 'none', label: 'On track' };
 }
 
 export default function StandupDigestPage() {
@@ -73,9 +73,14 @@ export default function StandupDigestPage() {
     <div className="min-h-screen bg-[#020817]">
       <Sidebar />
 
-      <main className="ml-[260px] p-8">
+      <motion.main
+        className="ml-[260px] p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-[32px] font-semibold text-white" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h1 className="text-[32px] font-bold text-white" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
             Standup Digest
           </h1>
           <motion.button
@@ -113,12 +118,17 @@ export default function StandupDigestPage() {
                     key={`${row.engineer}-${index}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.08 }}
+                    transition={{ delay: index * 0.08, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                    whileHover={{ y: -2 }}
                     className="rounded-xl p-6"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(24px)',
+                      WebkitBackdropFilter: 'blur(24px)',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderLeft: `3px solid ${st.border}`,
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                     }}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -127,7 +137,12 @@ export default function StandupDigestPage() {
                       </h3>
                       <span
                         className="px-3 py-1 rounded-full text-xs font-medium"
-                        style={{ background: st.bg, color: st.text }}
+                        style={{
+                          background: st.bg,
+                          color: st.text,
+                          border: `1px solid ${st.border}`,
+                          boxShadow: st.glow,
+                        }}
                       >
                         {st.label}
                       </span>
@@ -175,7 +190,7 @@ export default function StandupDigestPage() {
             )}
           </div>
         )}
-      </main>
+      </motion.main>
     </div>
   );
 }

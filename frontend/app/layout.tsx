@@ -15,6 +15,7 @@ const syne = Syne({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.iloveyhacks.biz'),
   title: 'PilotPM — One PM. Five engineers. Zero standups.',
   description:
     'PilotPM watches your tools 24/7 so you don\'t have to. AI-powered project management that keeps your team in sync without meetings.',

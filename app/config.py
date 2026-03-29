@@ -87,12 +87,14 @@ class Settings(BaseSettings):
     # ElevenLabs tool webhook secret (optional — set in ElevenLabs dashboard → Tools → Secret)
     ELEVENLABS_TOOL_SECRET: str = ""
 
-    # CORS — use JSON array in `.env`, e.g. ["http://localhost:3000","https://piolt-pm.vercel.app"]
+    # CORS — use JSON array in `.env`, e.g. ["http://localhost:3000","https://www.iloveyhacks.biz"]
     CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
             "https://piolt-pm.vercel.app",
+            "https://www.iloveyhacks.biz",
+            "https://iloveyhacks.biz",
         ],
     )
 

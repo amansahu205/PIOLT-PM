@@ -22,11 +22,11 @@ const severityStyles: Record<string, { badge: string; glow: string }> = {
     glow: 'shadow-[0_0_30px_rgba(239,68,68,0.15)]',
   },
   MEDIUM: {
-    badge: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-    glow: '',
+    badge: 'bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.2)]',
+    glow: 'shadow-[0_0_20px_rgba(245,158,11,0.08)]',
   },
   WATCH: {
-    badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30 shadow-[0_0_12px_rgba(59,130,246,0.2)]',
     glow: '',
   },
 };
@@ -89,14 +89,20 @@ export default function BlockerRadarPage() {
     <div className="min-h-screen bg-[#020817] flex">
       <Sidebar />
 
-      <main className="flex-1 ml-[260px] p-8">
+      <motion.main
+        className="flex-1 ml-[260px] p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           className="flex items-center justify-between mb-8"
         >
           <div className="flex items-center gap-4">
-            <h1 className="font-syne text-[32px] font-bold text-white">Blocker Radar</h1>
+            <h1 className="font-syne text-[32px] font-bold text-white" style={{ letterSpacing: '-0.02em' }}>Blocker Radar</h1>
             <div className="flex items-center gap-2 text-sm text-neutral-400">
               <motion.div
                 className="w-2 h-2 rounded-full bg-emerald-500"
@@ -145,7 +151,16 @@ export default function BlockerRadarPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: 300 }}
-                    className={`p-6 rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] ${st.glow}`}
+                    whileHover={{ y: -2 }}
+                    className={`p-6 rounded-2xl backdrop-blur-2xl ${st.glow}`}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(24px)',
+                      WebkitBackdropFilter: 'blur(24px)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06)`,
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
+                    }}
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${st.badge}`}>
@@ -199,7 +214,7 @@ export default function BlockerRadarPage() {
             <p className="text-center text-neutral-500 py-16">No active blockers. Run Scan or check integrations.</p>
           )}
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

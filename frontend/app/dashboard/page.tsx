@@ -69,13 +69,16 @@ function StatCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
+      transition={{ duration: 0.4, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      whileHover={{ y: -2 }}
       className="relative p-6 rounded-xl"
       style={{
-        background: 'rgba(255, 255, 255, 0.04)',
-        backdropFilter: 'blur(20px)',
+        background: 'rgba(255, 255, 255, 0.03)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
-        boxShadow: `0 0 40px ${colors[color].glow}, inset 0 1px 0 rgba(255,255,255,0.05)`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 0 40px ${colors[color].glow}`,
+        transition: 'all 0.2s ease',
       }}
     >
       <div className="flex items-start justify-between mb-4">
@@ -156,13 +159,19 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#020817]">
       <Sidebar />
 
-      <main className="ml-[260px] min-h-screen p-8">
+      <motion.main
+        className="ml-[260px] min-h-screen p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <div className="flex items-center justify-between mb-8">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-[28px] font-semibold text-white"
-            style={{ fontFamily: 'var(--font-syne)' }}
+            transition={{ delay: 0.08 }}
+            className="text-[32px] font-bold text-white"
+            style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}
           >
             Good morning, Alex
           </motion.h1>
@@ -191,10 +200,14 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           className="rounded-xl p-6 mb-8"
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
+            background: 'rgba(255, 255, 255, 0.03)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 0 40px rgba(34,211,238,0.04)',
           }}
         >
           <div className="flex items-center justify-between mb-6">
@@ -233,9 +246,9 @@ export default function DashboardPage() {
                   'check-in': '#F59E0B',
                 };
                 const pillColors = {
-                  blocked: { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444' },
-                  'on-track': { bg: 'rgba(16, 185, 129, 0.15)', text: '#10B981' },
-                  'check-in': { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B' },
+                  blocked: { bg: 'rgba(239, 68, 68, 0.15)', text: '#EF4444', border: 'rgba(239,68,68,0.3)', glow: '0 0 12px rgba(239,68,68,0.2)' },
+                  'on-track': { bg: 'rgba(16, 185, 129, 0.15)', text: '#10B981', border: 'rgba(16,185,129,0.3)', glow: 'none' },
+                  'check-in': { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B', border: 'rgba(245,158,11,0.3)', glow: 'none' },
                 };
                 const msg = [row.did, row.working_on].filter(Boolean).join(' · ') || standup?.summary || '';
                 return (
@@ -243,19 +256,29 @@ export default function DashboardPage() {
                     key={`${row.engineer}-${i}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.05 * i }}
+                    transition={{ duration: 0.4, delay: 0.08 * i, ease: [0.25, 0.1, 0.25, 1] }}
+                    whileHover={{ y: -2 }}
                     className="p-5 rounded-xl"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(24px)',
+                      WebkitBackdropFilter: 'blur(24px)',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderLeft: `3px solid ${borderColors[m.key]}`,
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                     }}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold text-white">{row.engineer}</h4>
                       <span
                         className="text-xs font-medium px-2.5 py-1 rounded-full"
-                        style={{ background: pillColors[m.key].bg, color: pillColors[m.key].text }}
+                        style={{
+                          background: pillColors[m.key].bg,
+                          color: pillColors[m.key].text,
+                          border: `1px solid ${pillColors[m.key].border}`,
+                          boxShadow: pillColors[m.key].glow,
+                        }}
                       >
                         {m.label}
                       </span>
@@ -315,7 +338,7 @@ export default function DashboardPage() {
             <ArrowRight size={16} />
           </Link>
         </motion.div>
-      </main>
+      </motion.main>
     </div>
   );
 }
