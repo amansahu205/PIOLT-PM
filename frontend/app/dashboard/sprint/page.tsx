@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/sidebar';
 import { apiJson, ApiError } from '@/lib/api';
+import { SprintTicketRow, UiTicket } from '@/components/ui/sprint-ticket-row';
 
 type SprintTicketApi = {
   id: string;
@@ -33,14 +34,6 @@ type SprintStatus = {
   updated_at?: string | null;
 };
 
-type UiTicket = {
-  id: string;
-  k2Score: number;
-  title: string;
-  assignee: string;
-  storyPoints: number;
-  included: boolean;
-};
 
 function mapToUi(t: SprintTicketApi): UiTicket {
   return {
@@ -349,54 +342,14 @@ export default function SprintPlanningPage() {
                   <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center">Include</span>
                 </div>
 
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-white/5 space-y-3 mt-4">
                   {tickets.map((ticket, index) => (
-                    <motion.div
+                    <SprintTicketRow
                       key={ticket.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.08 }}
-                      whileHover={{
-                        scale: 1.005,
-                        backgroundColor: 'rgba(255,255,255,0.02)',
-                      }}
-                      className="grid grid-cols-[80px_1fr_180px_80px_60px] gap-4 px-6 py-4 items-center cursor-pointer transition-colors"
-                      onClick={() => toggleTicket(ticket.id)}
-                    >
-                      <div>
-                        <span
-                          className={`inline-flex items-center justify-center w-12 h-7 rounded-md text-sm font-mono font-bold ${getScoreBadgeStyle(ticket.k2Score)}`}
-                        >
-                          {ticket.k2Score}
-                        </span>
-                      </div>
-                      <span className={`font-medium ${ticket.included ? 'text-white' : 'text-neutral-500'}`}>{ticket.title}</span>
-                      <span className={`text-sm ${ticket.included ? 'text-neutral-300' : 'text-neutral-500'}`}>{ticket.assignee}</span>
-                      <span
-                        className={`text-center font-mono font-medium ${ticket.included ? 'text-white' : 'text-neutral-500'}`}
-                      >
-                        {ticket.storyPoints}
-                      </span>
-                      <div className="flex justify-center">
-                        <motion.button
-                          type="button"
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleTicket(ticket.id);
-                          }}
-                          className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${
-                            ticket.included
-                              ? 'bg-cyan-500 text-white shadow-[0_0_10px_rgba(34,211,238,0.4)]'
-                              : 'bg-white/5 border border-white/10 text-transparent hover:border-white/20'
-                          }`}
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </motion.button>
-                      </div>
-                    </motion.div>
+                      ticket={ticket}
+                      index={index}
+                      onToggle={toggleTicket}
+                    />
                   ))}
                 </div>
               </motion.div>

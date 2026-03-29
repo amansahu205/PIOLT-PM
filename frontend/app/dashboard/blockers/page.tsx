@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/sidebar';
 import { apiJson, ApiError } from '@/lib/api';
+import { BlockerRadarCard } from '@/components/ui/blocker-radar-card';
 
 type BlockerApi = {
   id?: string | null;
@@ -143,69 +144,13 @@ export default function BlockerRadarPage() {
             {!loading &&
               blockers.map((blocker, index) => {
                 const id = blocker.id || String(index);
-                const sk = sevKey(blocker.severity);
-                const st = severityStyles[sk];
                 return (
-                  <motion.div
+                  <BlockerRadarCard
                     key={id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 300 }}
-                    whileHover={{ y: -2 }}
-                    className={`p-6 rounded-2xl backdrop-blur-2xl ${st.glow}`}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(24px)',
-                      WebkitBackdropFilter: 'blur(24px)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06)`,
-                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
-                    }}
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${st.badge}`}>
-                        {blocker.severity || sk}
-                      </span>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/[0.06] text-neutral-300 border border-white/[0.08]">
-                        {blocker.type || 'BLOCKER'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-white font-medium">{blocker.engineer || '—'}</span>
-                      {blocker.blocked_for && (
-                        <span className="px-2 py-0.5 rounded-md text-xs font-mono bg-white/[0.06] text-neutral-400 border border-white/[0.08]">
-                          {blocker.blocked_for}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-neutral-400 text-sm mb-4">{blocker.description || ''}</p>
-                    {blocker.draft_ping && (
-                      <div className="p-4 rounded-xl bg-black/30 border border-white/[0.06] mb-4">
-                        <p className="font-mono text-sm text-neutral-300">{blocker.draft_ping}</p>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="button"
-                        className="px-4 py-2 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-medium border border-cyan-500/30"
-                        disabled
-                        title="Queued via Review after approve in product"
-                      >
-                        Ping {blocker.resolver || 'resolver'}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="button"
-                        onClick={() => handleDismiss(id)}
-                        className="px-4 py-2 rounded-lg bg-transparent text-neutral-400 text-sm font-medium border border-white/[0.08] hover:bg-white/[0.04]"
-                      >
-                        Dismiss
-                      </motion.button>
-                    </div>
-                  </motion.div>
+                    {...blocker}
+                    onDismiss={() => handleDismiss(id)}
+                    index={index}
+                  />
                 );
               })}
           </AnimatePresence>

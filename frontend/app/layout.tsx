@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter, Syne } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import CursorParticles from '@/components/cursor-particles'
+import { ParticleBackground } from '@/components/ui/particle-background'
 import './globals.css'
 
 const inter = Inter({
@@ -34,6 +36,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${syne.variable} font-sans antialiased bg-[#020817] text-white`}>
+        <ParticleBackground />
+        <CursorParticles />
         {children}
         <Analytics />
       </body>

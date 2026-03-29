@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { apiUrl, getApiBase } from '@/lib/api';
 import { setToken } from '@/lib/auth';
+import { ParticleBackground } from '@/components/ui/particle-background';
 
 function LoginForm() {
   const router = useRouter();
@@ -82,6 +83,7 @@ function LoginForm() {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#020817]">
       <div className="absolute inset-0 overflow-hidden">
+        <ParticleBackground />
         <motion.div
           className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full"
           style={{

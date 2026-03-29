@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/sidebar';
 import { ChevronDown, Check, X, Pencil, CheckCircle2 } from 'lucide-react';
 import { apiJson, ApiError } from '@/lib/api';
+import { ReviewQueueCard } from '@/components/ui/review-queue-card';
 
 type ActionType = 'SLACK_MESSAGE' | 'MONDAY_BOARD' | 'GMAIL_SEND' | 'CALENDAR_EVENT';
 
@@ -200,132 +201,26 @@ export default function ReviewQueuePage() {
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
             {actions.map((action, index) => {
-              const config = typeConfig[action.type];
               const isExpanded = expandedIds.has(action.id);
               const isEditing = editingId === action.id;
               const currentContent = editedContents[action.id] ?? action.content;
               const isBusy = busyId === action.id;
 
               return (
-                <motion.div
+                <ReviewQueueCard
                   key={action.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{
-                    opacity: 0,
-                    x: 100,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    transition: { duration: 0.3 },
-                  }}
-                  transition={{ delay: index * 0.1 }}
-                  className="rounded-xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <span className={`px-3 py-1 rounded-md text-xs font-mono font-medium ${config.color} ${config.bg}`}>
-                      {config.label}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-semibold text-white mb-4 font-[family-name:var(--font-syne)]">{action.title}</h3>
-
-                  <div
-                    className={`relative rounded-lg bg-black/40 border p-4 mb-4 transition-colors ${
-                      isEditing ? 'border-cyan-500/50 shadow-[0_0_20px_rgba(34,211,238,0.1)]' : 'border-white/[0.06]'
-                    }`}
-                  >
-                    <textarea
-                      value={currentContent}
-                      onChange={(e) => setEditedContents({ ...editedContents, [action.id]: e.target.value })}
-                      onFocus={() => setEditingId(action.id)}
-                      onBlur={() => setEditingId(null)}
-                      className="w-full bg-transparent text-neutral-300 font-mono text-sm resize-none outline-none min-h-[80px]"
-                      style={{ caretColor: '#22d3ee' }}
-                      disabled={isBusy}
-                    />
-                    {isEditing && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="absolute bottom-2 right-2 text-xs text-cyan-400/60"
-                      >
-                        Local edit (not synced to server)
-                      </motion.div>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => toggleExpand(action.id)}
-                    className="flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-200 transition-colors mb-4"
-                  >
-                    <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                      <ChevronDown className="w-4 h-4" />
-                    </motion.div>
-                    Agent Reasoning
-                  </button>
-
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="rounded-lg bg-black/60 border border-white/[0.04] p-4 mb-4">
-                          {action.reasoning.length ? (
-                            action.reasoning.map((line, i) => (
-                              <p key={i} className="text-sm text-neutral-400 font-mono leading-relaxed">
-                                {line}
-                              </p>
-                            ))
-                          ) : (
-                            <p className="text-sm text-neutral-500">No reasoning stored.</p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleApprove(action.id)}
-                      disabled={isBusy}
-                      className="px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2 hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
-                    >
-                      <Check className="w-4 h-4" />
-                      {isBusy ? '…' : 'Approve'}
-                    </motion.button>
-
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setEditingId(action.id)}
-                      className="px-4 py-2 rounded-lg border border-white/[0.08] text-neutral-300 text-sm font-medium flex items-center gap-2 hover:bg-white/[0.04] transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      Edit
-                    </motion.button>
-
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleReject(action.id)}
-                      disabled={isBusy}
-                      className="px-4 py-2 rounded-lg text-red-400 text-sm font-medium flex items-center gap-2 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                    >
-                      <X className="w-4 h-4" />
-                      Reject
-                    </motion.button>
-                  </div>
-                </motion.div>
+                  {...action}
+                  isExpanded={isExpanded}
+                  isEditing={isEditing}
+                  isBusy={isBusy}
+                  currentContent={currentContent}
+                  index={index}
+                  onToggleExpand={() => toggleExpand(action.id)}
+                  onApprove={() => handleApprove(action.id)}
+                  onReject={() => handleReject(action.id)}
+                  onEditToggle={() => setEditingId(isEditing ? null : action.id)}
+                  onContentChange={(val) => setEditedContents({ ...editedContents, [action.id]: val })}
+                />
               );
             })}
           </AnimatePresence>

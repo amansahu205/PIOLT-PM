@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Sidebar from '@/components/sidebar';
 import { RefreshCw } from 'lucide-react';
 import { apiJson, ApiError } from '@/lib/api';
+import { EngineerStatusCard } from '@/components/ui/engineer-status-card';
 
 type DigestRow = {
   engineer: string;
@@ -111,73 +112,13 @@ export default function StandupDigestPage() {
             {digest.length === 0 ? (
               <p className="text-neutral-500">No digest yet. Click Regenerate.</p>
             ) : (
-              digest.map((row, index) => {
-                const st = statusStyle(row.status);
-                return (
-                  <motion.div
+              digest.map((row, index) => (
+                  <EngineerStatusCard 
                     key={`${row.engineer}-${index}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.08, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-                    whileHover={{ y: -2 }}
-                    className="rounded-xl p-6"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(24px)',
-                      WebkitBackdropFilter: 'blur(24px)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderLeft: `3px solid ${st.border}`,
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-white" style={{ fontFamily: 'var(--font-syne)' }}>
-                        {row.engineer}
-                      </h3>
-                      <span
-                        className="px-3 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          background: st.bg,
-                          color: st.text,
-                          border: `1px solid ${st.border}`,
-                          boxShadow: st.glow,
-                        }}
-                      >
-                        {st.label}
-                      </span>
-                    </div>
-                    {row.did && (
-                      <p className="text-sm text-neutral-300 mb-2">
-                        <span className="text-neutral-500">Did: </span>
-                        {row.did}
-                      </p>
-                    )}
-                    {row.working_on && (
-                      <p className="text-sm text-neutral-300 mb-2">
-                        <span className="text-neutral-500">Working on: </span>
-                        {row.working_on}
-                      </p>
-                    )}
-                    {row.blocker && (
-                      <p className="text-sm text-red-300 mt-2">Blocker: {row.blocker}</p>
-                    )}
-                    {row.sources && row.sources.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {row.sources.map((s, i) => (
-                          <span
-                            key={i}
-                            className="text-xs px-2 py-1 rounded"
-                            style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee' }}
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })
+                    {...row}
+                    index={index}
+                  />
+              ))
             )}
             {data?.summary && (
               <motion.div
