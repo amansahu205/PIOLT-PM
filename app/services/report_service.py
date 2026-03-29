@@ -84,10 +84,11 @@ class ReportService:
     @staticmethod
     async def generate_report(db: AsyncIOMotorDatabase) -> dict[str, Any]:
         week_id = ReportRepository.iso_week_id()
-        if await ReportRepository.find_sent_for_week(db, week_id):
-            raise ValueError(
-                "Weekly report already finalized for this week — cannot regenerate.",
-            )
+        # TEMPORARY ALLOW RE-GENERATION for testing Hex integration:
+        # if await ReportRepository.find_sent_for_week(db, week_id):
+        #     raise ValueError(
+        #         "Weekly report already finalized for this week — cannot regenerate.",
+        #     )
 
         ctx = await get_context_snapshot()
         mon = ctx.get("monday") or {}
