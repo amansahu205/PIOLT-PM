@@ -69,6 +69,7 @@ class Settings(BaseSettings):
     TWILIO_AUTH_TOKEN: str
     TWILIO_PHONE: str
     HEX_API_KEY: str
+    HEX_PROJECT_ID: str = ""
 
     # Stakeholder emails (comma-separated)
     STAKEHOLDER_EMAILS: str = ""
