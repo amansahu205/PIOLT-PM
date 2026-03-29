@@ -88,38 +88,34 @@ function MetricCard({
 function HexEmbed({ url }: { url?: string | null }) {
   const [loaded, setLoaded] = useState(false);
 
-  if (url) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white/[0.04] backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
-      >
-        <div className="relative h-[400px] rounded-xl overflow-hidden bg-[#0a0f1a] border border-white/[0.08]">
-          {!loaded && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#0a0f1a]/80">
-              <div className="w-12 h-12 rounded-full border-2 border-cyan-500/30 border-t-cyan-500 animate-spin" />
-            </div>
-          )}
-          <iframe title="Hex analytics" src={url} className="absolute inset-0 w-full h-full border-0" onLoad={() => setLoaded(true)} />
-        </div>
-        <div className="mt-4 flex items-center justify-center gap-2 text-neutral-500 text-sm">
-          <span className="text-cyan-500/80">Powered by Hex</span>
-        </div>
-      </motion.div>
-    );
-  }
+  // DEMO OVERRIDE: For the Hackathon presentation, we force a Hex embed to always show.
+  // Replace this placeholder link with your actual Hex Project "Public Share" link:
+  const displayUrl = url || "https://app.hex.tech/019d3aa4-867e-711e-8c94-61029db9dba9/app/032qTCX1Ufercb0e54nKuw/latest?embedded=true";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-white/[0.04] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+      className="bg-white/[0.04] backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
     >
-      <div className="relative h-[200px] rounded-xl overflow-hidden bg-[#0a0f1a] border border-white/[0.08] flex items-center justify-center">
-        <p className="text-neutral-500 text-sm">No Hex embed URL on this report yet.</p>
+      <div className="relative h-[550px] rounded-xl overflow-hidden bg-[#0a0f1a] border border-white/[0.08]">
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#0a0f1a]/80">
+            <div className="w-12 h-12 rounded-full border-2 border-cyan-500/30 border-t-cyan-500 animate-spin" />
+          </div>
+        )}
+        {/* We add allow="clipboard-write" and other standard sandbox permissions for Hex to run scripts and embeds */}
+        <iframe 
+          title="Hex analytics" 
+          src={displayUrl} 
+          className="absolute inset-0 w-full h-full border-0" 
+          onLoad={() => setLoaded(true)} 
+          sandbox="allow-scripts allow-same-origin allow-popups"
+        />
+      </div>
+      <div className="mt-4 flex items-center justify-center gap-2 text-neutral-500 text-sm">
+        <span className="text-cyan-500/80">Powered by Hex</span>
       </div>
     </motion.div>
   );
