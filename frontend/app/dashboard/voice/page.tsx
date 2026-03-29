@@ -62,13 +62,12 @@ export default function VoiceAgentPage() {
     [],
   );
 
+  /** E.164-style dial string; display string may include spaces or vanity letters (stripped here). */
   const telHref = useMemo(() => {
     const digits = phoneDisplay.replace(/\D/g, '');
     if (!digits) return 'tel:';
     return digits.length === 11 && digits.startsWith('1') ? `tel:+${digits}` : `tel:+${digits}`;
   }, [phoneDisplay]);
-
-  const phoneDigits = phoneDisplay.split('');
 
   useEffect(() => {
     let cancelled = false;
@@ -140,24 +139,21 @@ export default function VoiceAgentPage() {
             <div className="absolute w-[300px] h-[300px] rounded-full border border-[#22d3ee]/15 animate-[pulse-ring_3s_ease-out_infinite_0.5s]" />
             <div className="absolute w-[200px] h-[200px] rounded-full border border-[#22d3ee]/20 animate-[pulse-ring_3s_ease-out_infinite_1s]" />
 
-            <a href={telHref} className="relative z-10 flex" aria-label="Call PilotPM">
-              {phoneDigits.map((digit, index) => (
-                <motion.span
-                  key={`${digit}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.05,
-                    ease: [0.23, 1, 0.32, 1],
-                  }}
-                  className="text-[64px] font-bold text-[#22d3ee] font-[family-name:var(--font-syne)] tracking-[0.1em]"
-                  style={{ textShadow: '0 0 40px rgba(34, 211, 238, 0.4)' }}
-                >
-                  {digit}
-                </motion.span>
-              ))}
-            </a>
+            <motion.a
+              href={telHref}
+              className="relative z-10 inline-block text-center select-none"
+              aria-label={`Call ${phoneDisplay}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <span
+                className="text-[clamp(2rem,8vw,4rem)] font-bold text-[#22d3ee] font-[family-name:var(--font-syne)] tracking-wide whitespace-nowrap"
+                style={{ textShadow: '0 0 40px rgba(34, 211, 238, 0.4)' }}
+              >
+                {phoneDisplay}
+              </span>
+            </motion.a>
           </div>
 
           <motion.p

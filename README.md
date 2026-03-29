@@ -115,6 +115,24 @@ Open `http://localhost:3000` (or the URL Next prints). **Sign in** uses the demo
 
 JWT is stored in `localStorage` (`pilotpm_token`); API calls send `Authorization: Bearer …`.
 
+## Deploy frontend (Vercel)
+
+1. **Vercel → New Project** → import this GitHub repo.
+2. **Root Directory:** set to `frontend` (monorepo).
+3. **Framework:** Next.js (auto-detected). Build: `pnpm install && pnpm build` (or leave default if Vercel infers it).
+4. **Environment variables** (Production + Preview if you use previews):
+
+   | Name | Value |
+   |------|--------|
+   | `NEXT_PUBLIC_API_URL` | Your public API base, e.g. `https://your-api.railway.app` (no trailing slash) |
+   | `NEXT_PUBLIC_TWILIO_PHONE` | Optional; Voice page display |
+
+5. **Backend CORS:** On the API host (e.g. Railway), set `CORS_ORIGINS` in `.env` to a JSON array of **exact** origins, e.g. `["https://your-app.vercel.app"]`. Add each Vercel preview URL you need (wildcard subdomains are not supported by standard CORS—list them explicitly or use one production domain).
+
+6. Redeploy the API after changing `CORS_ORIGINS`, then redeploy Vercel.
+
+**Twilio:** The inbound webhook stays on the **API** URL (`https://<api-host>/api/v1/voice/webhook/inbound`), not on Vercel.
+
 ## API overview (v1)
 
 All JSON API routes except `/auth/*` expect a valid JWT (see `app/dependencies.py`).
@@ -209,6 +227,18 @@ Defined in **`app/jobs/scheduler.py`**.
 ### Mental model
 
 **Integrations → context cache → LLM planners (standup / blockers / sprint / report) → Mongo + review queue for external actions → Voice** answers live using the same snapshot narrative.
+
+## Twilio + ElevenLabs (inbound voice)
+
+Twilio cannot POST to `localhost`. Deploy the API with a **public HTTPS** URL (Railway, Render, Cloudflare Tunnel, ngrok, etc.), then:
+
+1. **Twilio Console** → Phone Numbers → Active number → **Voice & Fax** → *A call comes in* → **Webhook**, **HTTP POST**.
+2. URL: `https://<your-api-host>/api/v1/voice/webhook/inbound` (no auth; Twilio only).
+3. `.env`: set **`TWILIO_ACCOUNT_SID`**, **`TWILIO_AUTH_TOKEN`**, **`TWILIO_PHONE`** (your E.164 number), **`ELEVENLABS_API_KEY`**, **`ELEVENLABS_AGENT_ID`** (ConvAI agent that supports telephony).
+
+On each inbound call, PilotPM builds a **system prompt** from Mongo-backed context (sprint, standup, blockers, GitHub activity) and calls ElevenLabs **`POST /v1/convai/twilio/register-call`**, which returns **TwiML** that bridges the call to the agent. Failures return a spoken **Polly** error message.
+
+**ElevenLabs:** Import or configure the same Twilio number in the ElevenLabs agent / phone settings if their dashboard requires it for full features; the register-call flow still needs a valid **`xi-api-key`**.
 
 ## Slack troubleshooting
 

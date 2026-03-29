@@ -1,13 +1,14 @@
 # app/api/v1/voice.py
 """
 Twilio inbound call webhook — F-005.
-ElevenLabs Conversational AI handles audio; this route returns TwiML to bridge the stream.
+ElevenLabs Conversational AI: we delegate TwiML to POST /v1/convai/twilio/register-call
+so the Stream WebSocket URL and protocol match what Twilio expects.
 """
 
 from fastapi import APIRouter, Depends, Request, Response
 
 import structlog
-from twilio.twiml.voice_response import Connect, Stream, VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse
 
 from app.dependencies import get_current_user, get_db_dep
 from app.services.voice_service import VoiceService
@@ -19,31 +20,44 @@ router = APIRouter()
 @router.post("/webhook/inbound")
 async def inbound_call(request: Request, db=Depends(get_db_dep)):
     """
-    Twilio hits this URL when someone dials the PilotPM number.
-    Returns TwiML that connects the call to ElevenLabs Conversational AI via WebSocket.
+    Twilio hits this URL when someone dials the PilotPM number (configure in Twilio Console:
+    Phone Numbers → your number → Voice & Fax → A call comes in → Webhook POST).
+
+    Public HTTPS URL required (e.g. Railway, ngrok); Twilio cannot reach localhost.
+
+    We pass PilotPM context as a **prompt override** on register-call so the agent answers
+    from live GitHub / Slack / Monday snapshot text.
     """
     form = await request.form()
-    caller = str(form.get("From") or "unknown")
+    caller = str(form.get("From") or "")
+    called = str(form.get("To") or "")
     call_sid = str(form.get("CallSid") or "")
 
-    log.info("voice.inbound_call", caller=caller, call_sid=call_sid)
+    log.info("voice.inbound_call", caller=caller, called=called, call_sid=call_sid)
 
-    context = await VoiceService.get_voice_context(db)
-    await VoiceService.log_call_start(call_sid, caller, db)
+    try:
+        ctx_bundle = await VoiceService.get_voice_context(db)
+        agent_id = ctx_bundle["agent_id"]
+        system_prompt = ctx_bundle["system_prompt"]
 
-    agent_id = context["agent_id"]
-    system_prompt = context["system_prompt"]
+        await VoiceService.log_call_start(call_sid, caller or "unknown", db)
 
-    twiml = VoiceResponse()
-    connect = Connect()
-    stream = Stream(
-        url=f"wss://api.elevenlabs.io/v1/convai/call?agent_id={agent_id}",
-    )
-    stream.parameter(name="agent_context", value=system_prompt)
-    connect.append(stream)
-    twiml.append(connect)
-
-    return Response(content=str(twiml), media_type="application/xml")
+        twiml = await VoiceService.get_twiml_for_twilio_inbound(
+            from_number=caller,
+            to_number=called,
+            agent_id=agent_id,
+            system_prompt=system_prompt,
+        )
+        return Response(content=twiml, media_type="application/xml")
+    except Exception as exc:
+        log.exception("voice.inbound_failed", error=str(exc))
+        vr = VoiceResponse()
+        vr.say(
+            "Sorry, PilotPM voice is temporarily unavailable. Please try again later.",
+            voice="Polly.Joanna",
+        )
+        vr.hangup()
+        return Response(content=str(vr), media_type="application/xml")
 
 
 @router.get("/context")
