@@ -2,6 +2,8 @@
 
 AI project-management orchestrator for YHack 2026: standup digests, blocker radar, sprint drafting (K2 Think V2), status reports, voice agent (Twilio + ElevenLabs), and a human-in-the-loop **review queue** before side effects hit Slack, Monday.com, or email.
 
+How those pieces run end-to-end is documented in **[Agentic workflows](#agentic-workflows)** below.
+
 ## Stack
 
 | Layer | Technology |
@@ -126,6 +128,87 @@ All JSON API routes except `/auth/*` expect a valid JWT (see `app/dependencies.p
 | Reports | `GET .../reports/current`, `POST .../reports/generate`, `PATCH .../reports/{id}/edit`, `POST .../reports/{id}/send` |
 | Voice | `GET .../voice/context`, `GET .../voice/transcripts`; Twilio hits `POST .../voice/webhook/inbound` |
 | Review | `GET .../review`, `POST .../review/{id}/approve`, `POST .../review/{id}/reject` |
+
+## Agentic workflows
+
+Most automations read a **cached project snapshot** (GitHub + Slack + Monday) instead of hammering APIs on every request. Voice uses the same world model, condensed for telephony.
+
+### Shared context layer
+
+- **`context_builder.build_context_snapshot()`** fetches the three integrations in parallel and stores **`project_context`** in MongoDB (`sources_available` marks what succeeded).
+- **`get_context_snapshot()`** returns that document if it is **≤ 15 minutes** old; otherwise it refreshes.
+- On API startup, the app **warms** context once; the scheduler also refreshes it **every 15 minutes** (`app/jobs/context_job.py`).
+
+### Human-in-the-loop: review queue
+
+Workflows that would change the outside world (Slack post, Monday update, email send) call **`review_service.stage_action(...)`**, which inserts a **`pending`** document into Mongo **`review_queue`** (`type`, `data`, `reasoning`, `workflow`).
+
+The dashboard **Review** page and **`GET /api/v1/review`** list pending items; **`POST .../approve`** and **`POST .../reject`** update their status. Treat this as the **approval gate** before side effects; wire execution workers separately if you need approve-to-execute automation.
+
+### Standup digest (`workflow: standup`)
+
+| Step | What happens |
+|------|----------------|
+| Input | Cached context (GitHub / Slack / Monday) + optional GitHub team member names. |
+| Agent | LLM with `Prompts.STANDUP_*` produces structured JSON (per-engineer status, blockers, etc.). |
+| Persist | Validated digest → standup repository + `standup_cache` on context. |
+| Stage | **`slack_message`** to **`SLACK_STANDUP_CHANNEL`** with formatted digest text. |
+
+**Triggers:** **`POST /api/v1/standup/generate`** (manual / UI) and cron **09:00 America/New_York** daily (`app/jobs/standup_job.py`). **Read:** `GET /api/v1/standup/today`.
+
+### Blocker radar (`workflow: blocker`)
+
+| Step | What happens |
+|------|----------------|
+| Input | Open PRs + ages, recent Slack messages, stale Monday “in progress” items, per-engineer commits (sanitized). |
+| Agent | LLM with `Prompts.BLOCKER_*` returns JSON blocker candidates. |
+| Persist | New **`BlockerCard`** rows (deduped). |
+| Stage | For each new blocker, **`slack_ping`** to **`SLACK_ENGINEERING_CHANNEL`** with `draft_ping` (or fallback text). |
+
+**Triggers:** **`POST /api/v1/blockers/scan`** and cron **every 15 minutes** between **08:00–20:00 ET** (`app/jobs/blocker_job.py`). **Dismiss:** `PATCH /api/v1/blockers/{id}/dismiss`.
+
+### Sprint autopilot (`workflow: sprint`)
+
+| Step | What happens |
+|------|----------------|
+| Draft | **`POST /api/v1/sprint/draft/generate`** — Monday/GitHub-style inputs → LLM with **`task=sprint`** and **K2 Think** (`Prompts.SPRINT_*`) → scored tickets, capacity, utilization. |
+| Edit | **`PATCH /api/v1/sprint/draft/tickets`** toggles inclusion and recomputes utilization (max **110%** allowed on approve). |
+| Approve | **`POST /api/v1/sprint/approve`** stages **`monday_sprint`** (apply plan to board) and **`calendar_events`** (ceremony placeholders). |
+
+**Read:** `GET /api/v1/sprint/current` (board snapshot), `GET /api/v1/sprint/draft`.
+
+### Weekly status report (`workflow: reports`)
+
+| Step | What happens |
+|------|----------------|
+| Generate | Context snapshot + merged PRs (7d), resolved/active blockers, Monday tickets → LLM **`Prompts.REPORT_*`** → subject/body; optional **Hex** embed URL. |
+| Send | **`POST /api/v1/reports/{id}/send`** stages **`gmail_send`** (`STAKEHOLDER_EMAILS`, subject, body) and marks the report **sent**. |
+
+**Triggers:** **`POST /api/v1/reports/generate`**, cron **Friday 17:00 America/New_York** (`app/jobs/report_job.py`).
+
+### Voice agent (F-005)
+
+| Step | What happens |
+|------|----------------|
+| Inbound | Twilio **`POST /api/v1/voice/webhook/inbound`** (no JWT). |
+| Context | **`VoiceService`** builds a **system prompt** from **`get_context_for_voice()`** (sprint, blockers, standup digest, recent GitHub activity summary). |
+| Bridge | TwiML connects the call to **ElevenLabs** Conversational AI WebSocket; `agent_context` carries the system prompt. |
+| Log | Calls recorded in **`call_transcripts`** (dashboard: `GET /api/v1/voice/transcripts`). |
+
+### Scheduled jobs (APScheduler, `America/New_York`)
+
+| Job ID | Schedule | Purpose |
+|--------|----------|---------|
+| `context_refresh` | Every **15 minutes** | Refresh `project_context` |
+| `daily_standup` | Daily **09:00** | Generate standup + stage Slack post |
+| `blocker_poll` | ***/15** in **08–20** | Run blocker scan + stage pings |
+| `weekly_report` | **Friday 17:00** | Generate weekly report draft |
+
+Defined in **`app/jobs/scheduler.py`**.
+
+### Mental model
+
+**Integrations → context cache → LLM planners (standup / blockers / sprint / report) → Mongo + review queue for external actions → Voice** answers live using the same snapshot narrative.
 
 ## Slack troubleshooting
 
