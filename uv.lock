@@ -1144,6 +1144,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "apscheduler" },
+    { name = "certifi" },
     { name = "fastapi" },
     { name = "google-genai" },
     { name = "httpx" },
@@ -1174,6 +1175,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apscheduler", specifier = ">=3.11.2" },
+    { name = "certifi", specifier = ">=2024.12.14" },
     { name = "fastapi", specifier = ">=0.135.2" },
     { name = "google-genai", specifier = ">=1.69.0" },
     { name = "httpx", specifier = ">=0.28.1" },

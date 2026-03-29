@@ -4,8 +4,9 @@ Async MongoDB client via Motor.
 Single client instance — reused across all requests.
 """
 
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+import certifi
 import structlog
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.config import settings
 
@@ -17,10 +18,13 @@ _db: AsyncIOMotorDatabase | None = None
 
 async def connect_mongo() -> None:
     global _client, _db
+    # Use certifi CA bundle — Railpack/Docker runtimes often have an empty or stale
+    # system store; without this, Atlas TLS can fail with TLSV1_ALERT_INTERNAL_ERROR.
     _client = AsyncIOMotorClient(
         settings.MONGODB_URI,
         serverSelectionTimeoutMS=5000,
         maxPoolSize=10,
+        tlsCAFile=certifi.where(),
     )
     _db = _client[settings.MONGODB_DB]
     # Verify connection

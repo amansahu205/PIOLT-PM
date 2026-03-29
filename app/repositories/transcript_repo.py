@@ -18,18 +18,31 @@ class TranscriptRepository(BaseRepository):
         caller: str,
         db: AsyncIOMotorDatabase,
     ) -> dict:
+        """
+        Idempotent per CallSid — Twilio trial accounts (and some gathers) may POST the voice
+        webhook more than once for the same call; duplicate inserts must not fail.
+        """
         now = datetime.now(UTC).isoformat()
-        doc = {
-            "call_sid": call_sid,
-            "caller": caller,
-            "started_at": now,
-            "called_at": now,
-            "status": "in_progress",
-        }
-        result = await cls._col(db).insert_one(doc)
-        doc["_id"] = result.inserted_id
-        doc["id"] = str(result.inserted_id)
-        return doc
+        await cls._col(db).update_one(
+            {"call_sid": call_sid},
+            {
+                "$setOnInsert": {
+                    "call_sid": call_sid,
+                    "caller": caller,
+                    "started_at": now,
+                    "called_at": now,
+                    "status": "in_progress",
+                }
+            },
+            upsert=True,
+        )
+        doc = await cls._col(db).find_one({"call_sid": call_sid})
+        if not doc:
+            return {}
+        out = dict(doc)
+        if "_id" in out:
+            out["id"] = str(out.pop("_id"))
+        return out
 
     @classmethod
     async def log_call_end(

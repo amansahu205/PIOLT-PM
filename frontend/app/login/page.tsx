@@ -51,14 +51,26 @@ function LoginForm() {
       }, 600);
     } catch (err) {
       const base = getApiBase();
+      const hint = err instanceof Error && err.message ? ` ${err.message}` : '';
       let port = '8001';
       try {
         const u = new URL(base);
         if (u.port) port = u.port;
+        const host = u.hostname;
+        const isLocal =
+          host === 'localhost' || host === '127.0.0.1' || host === '::1';
+        if (!isLocal) {
+          const appOrigin =
+            typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app';
+          setError(
+            `Cannot reach API at ${base}.${hint} If the API is up (open ${base}/health in a new tab), add your frontend origin to CORS_ORIGINS on the API host — e.g. ["${appOrigin}","http://localhost:3000"] as JSON — then redeploy the API.`,
+          );
+          setIsLoading(false);
+          return;
+        }
       } catch {
         /* keep default */
       }
-      const hint = err instanceof Error && err.message ? ` ${err.message}` : '';
       setError(
         `Cannot reach API at ${base}.${hint} From repo root run: uv run uvicorn app.main:app --reload --host 127.0.0.1 --port ${port}`,
       );

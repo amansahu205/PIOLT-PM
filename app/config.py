@@ -79,12 +79,12 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
-    # CORS — use JSON array in `.env`, e.g. ["http://localhost:3000","https://pilotpm.vercel.app"]
+    # CORS — use JSON array in `.env`, e.g. ["http://localhost:3000","https://piolt-pm.vercel.app"]
     CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "https://pilotpm.vercel.app",
+            "https://piolt-pm.vercel.app",
         ],
     )
 
