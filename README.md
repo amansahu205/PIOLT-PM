@@ -1,5 +1,6 @@
 # PilotPM
 
+<!-- Stack -->
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-4ea94b.svg?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
@@ -7,11 +8,21 @@
 [![React](https://img.shields.io/badge/React-20232a.svg?style=flat&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=flat&logo=framer&logoColor=blue)](https://www.framer.com/motion/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Agents-FF6B35?style=flat)](https://langchain-ai.github.io/langgraph/)
+
+<!-- AI / LLMs -->
+[![OpenAI](https://img.shields.io/badge/OpenAI-via_Lava-412991?style=flat&logo=openai&logoColor=white)](https://lava.so)
+[![Gemini](https://img.shields.io/badge/Gemini-2.0_Flash-4285F4?style=flat&logo=google&logoColor=white)](https://ai.google.dev)
+[![K2 Think V2](https://img.shields.io/badge/K2_Think_V2-MBZUAI-00A86B?style=flat)](https://mbzuai.ac.ae)
+[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-Conversational_AI-000000?style=flat)](https://elevenlabs.io/)
+[![Lava](https://img.shields.io/badge/Lava-AI_Gateway-6366F1?style=flat)](https://lava.so)
+
+<!-- Integrations -->
 [![Twilio](https://img.shields.io/badge/Twilio-F22F46?style=flat&logo=twilio&logoColor=white)](https://www.twilio.com/)
-[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-Voice-000000)](https://elevenlabs.io/)
 [![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)](https://slack.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/)
 [![Monday.com](https://img.shields.io/badge/Monday.com-FF3D57?style=flat&logo=monday.com&logoColor=white)](https://monday.com/)
+[![Hex](https://img.shields.io/badge/Hex-Analytics-FF6B6B?style=flat)](https://hex.tech)
 
 > **No standups. No missed blockers. No manual reports.**
 
