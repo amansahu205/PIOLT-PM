@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   description:
     'PilotPM watches your tools 24/7 so you don\'t have to. AI-powered project management that keeps your team in sync without meetings.',
   generator: 'v0.app',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 }
 
 export default function RootLayout({

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -56,17 +57,14 @@ export default function Sidebar() {
       }}
     >
       <div className="p-6 flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center"
-          style={{
-            border: '1.5px solid #22d3ee',
-            background: 'rgba(34, 211, 238, 0.1)',
-          }}
-        >
-          <span className="text-sm font-bold" style={{ fontFamily: 'var(--font-syne)', color: '#22d3ee' }}>
-            PM
-          </span>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="PilotPM logo"
+          width={36}
+          height={36}
+          className="object-contain"
+          priority
+        />
         <span className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-syne)' }}>
           PilotPM
         </span>

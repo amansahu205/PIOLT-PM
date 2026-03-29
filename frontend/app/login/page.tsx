@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { apiUrl, getApiBase } from '@/lib/api';
@@ -118,20 +119,14 @@ function LoginForm() {
               }}
             >
               <div className="flex flex-col items-center mb-8">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                  style={{
-                    border: '2px solid #22d3ee',
-                    background: 'rgba(34, 211, 238, 0.1)',
-                  }}
-                >
-                  <span
-                    className="text-xl font-bold"
-                    style={{ fontFamily: 'var(--font-syne)', color: '#22d3ee' }}
-                  >
-                    PM
-                  </span>
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="PilotPM logo"
+                  width={72}
+                  height={72}
+                  className="object-contain mb-4"
+                  priority
+                />
                 <h1
                   className="text-2xl font-bold text-white"
                   style={{ fontFamily: 'var(--font-syne)' }}

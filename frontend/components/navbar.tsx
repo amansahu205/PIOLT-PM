@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -24,15 +25,17 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="/"
-          className="flex items-center gap-2 text-lg font-bold text-white"
+          className="flex items-center gap-2.5 text-lg font-bold text-white"
           style={{ fontFamily: 'var(--font-syne)' }}
         >
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-400/20 text-cyan-400 text-xs font-bold border border-cyan-400/30"
-            aria-hidden="true"
-          >
-            P
-          </span>
+          <Image
+            src="/logo.png"
+            alt="PilotPM logo"
+            width={32}
+            height={32}
+            className="object-contain"
+            priority
+          />
           PilotPM
         </a>
 
