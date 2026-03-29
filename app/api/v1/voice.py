@@ -11,11 +11,13 @@ from fastapi import APIRouter, Depends, Request, Response
 import structlog
 from twilio.twiml.voice_response import VoiceResponse
 
+from app.api.v1.voice_tools import router as tools_router
 from app.dependencies import get_current_user, get_db_dep
 from app.services.voice_service import VoiceService
 
 log = structlog.get_logger()
 router = APIRouter()
+router.include_router(tools_router)
 
 
 @router.post("/webhook/inbound")

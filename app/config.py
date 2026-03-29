@@ -79,6 +79,14 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
+    # Google Calendar — service account JSON (full JSON string, base64 or raw)
+    # Leave empty to fall back to ICS-via-email
+    GOOGLE_SERVICE_ACCOUNT_JSON: str = ""
+    GOOGLE_CALENDAR_ID: str = "primary"
+
+    # ElevenLabs tool webhook secret (optional — set in ElevenLabs dashboard → Tools → Secret)
+    ELEVENLABS_TOOL_SECRET: str = ""
+
     # CORS — use JSON array in `.env`, e.g. ["http://localhost:3000","https://piolt-pm.vercel.app"]
     CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: [
